@@ -1,12 +1,13 @@
 class ConsistentHash
-  @node_num
-  @v_num
-  @v_nodes
-  @v_nodes_map
-  @balance_count
+  @node_num      # 服务器数
+  @v_num         # 每个服务器虚拟节点数，需大于0
+  @v_nodes       # 虚拟节点列表
+  @v_nodes_map   # {节点hash值 --> 服务器编号}
+  @balance_count # {服务器编号 --> 分配数}
+
   def initialize(node_num, v_num)
     @node_num = node_num
-    @v_num = v_num
+    @v_num = [1, v_num].max # 最少1个虚拟节点
     @v_nodes = []
     @v_nodes_map = {}
     @balance_count = {}
@@ -31,7 +32,7 @@ class ConsistentHash
   end
 
   def balance(item)
-    hash_value = rand(2**32 - 1)
+    hash_value = rand(2**32 - 1) # 假设此值是由key hash得到
     v = @v_nodes.bsearch{|v| v > hash_value}
     v = @v_nodes[0] if v.nil?
     node_index = @v_nodes_map[v.to_s]
