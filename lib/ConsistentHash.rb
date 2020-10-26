@@ -24,7 +24,7 @@ class ConsistentHash
     @v_num.times do |j|
       begin
         hash_value = rand(2**32 - 1)
-      end while @v_nodes_map[hash_value.to_s].present?
+      end while @v_nodes_map[hash_value.to_s] != nil
       @v_nodes << hash_value
       @v_nodes_map[hash_value.to_s] = i
     end
@@ -32,9 +32,10 @@ class ConsistentHash
 
   def balance(item)
     hash_value = rand(2**32 - 1)
-    n = (0..@v_nodes.size-1).bsearch { |n| @v_nodes[n] > hash_value }
-    n = 0 if n.nil?
-    node_index = @v_nodes_map[@v_nodes[n].to_s]
+    v = @v_nodes.bsearch{|v| v > hash_value}
+    v = @v_nodes[0] if v.nil?
+    node_index = @v_nodes_map[v.to_s]
+
     @balance_count[node_index.to_s] ||= 0
     @balance_count[node_index.to_s] += 1
   end
